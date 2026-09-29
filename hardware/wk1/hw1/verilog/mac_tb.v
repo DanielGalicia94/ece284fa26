@@ -1,7 +1,6 @@
 // Created by prof. Mingu Kang @VVIP Lab in UCSD ECE department
 // Please do not spread this code without permission 
 
-
 module mac_tb;
 
 parameter bw = 8;
@@ -80,13 +79,11 @@ mac #(.bw(bw), .psum_bw(psum_bw)) mac_instance (
 
 initial begin 
 
-  in1_file = $fopen("a_data.txt", "r"); 
-  in2_file = $fopen("b_data.txt", "r"); 
-  in1_sm_file = $fopen("a_data.txt", "r"); 
-  in2_sm_file = $fopen("b_data.txt", "r"); 
-
   $dumpfile("mac_tb.vcd");
   $dumpvars(0,mac_tb);
+
+  in1_file = $fopen("a_data.txt", "r"); 
+  in2_file = $fopen("b_data.txt", "r"); 
 
   #1 clk = 1'b0;  reset = 1; format=0;
   #1 clk = 1'b1;  
@@ -94,7 +91,7 @@ initial begin
   #1 clk = 1'b1;  
   #1 clk = 1'b0;  reset = 0;
 
-  $display("-------------------- Computation start For 2's Complement Mode --------------------");
+  $display("-------------------- Computation start: 2's Complement Mode (format=0, acc=1) --------------------");
   
 
   for (i=0; i<10; i=i+1) begin  // Data lenght is 10 in the data files
@@ -114,14 +111,18 @@ initial begin
   #1 clk = 1'b1;  
   #1 clk = 1'b0; acc=0;  
 
-  $display("-------------------- Computation completed For 2's Complement Mode--------------------");
+  $fclose(in1_file);
+  $fclose(in2_file);
+  $display("-------------------- Computation completed For 2's Complement Mode (format=0, acc=1)--------------------");
 
+  in1_file = $fopen("a_data.txt", "r"); 
+  in2_file = $fopen("b_data.txt", "r");
   #1 clk = 1'b1;  
   #1 clk = 1'b0;  reset = 1;  format=0;
   #1 clk = 1'b1;  
   #1 clk = 1'b0;  reset = 0;
 
-  $display("-------------------- Computation start For Sign and Magnitude Mode --------------------");
+  $display("-------------------- Computation start: Sign and Magnitude Mode (format=1, acc=1) --------------------");
   
 
   for (i=0; i<10; i=i+1) begin  // Data lenght is 10 in the data files
@@ -129,9 +130,9 @@ initial begin
     #1 clk = 1'b1;
     #1 clk = 1'b0;   format=1; acc=1;
 
-    in1_scan_file = $fscanf(in1_sm_file, "%d\n", in1_dec);
+    in1_scan_file = $fscanf(in1_file, "%d\n", in1_dec);
     in1 = to_sign_magnitude(in1_dec); 
-    in2_scan_file = $fscanf(in2_sm_file, "%d\n", in2_dec);
+    in2_scan_file = $fscanf(in2_file, "%d\n", in2_dec);
     in2 = to_sign_magnitude(in2_dec); 
 
   end
@@ -139,12 +140,74 @@ initial begin
   #1 clk = 1'b1;
   #1 clk = 1'b0; in1=8'h0; in2=8'h0; 
   #1 clk = 1'b1;  
-  #1 clk = 1'b0; acc=0;format=0; 
+  #1 clk = 1'b0; acc=0;format=0;
+
+  $fclose(in1_file);
+  $fclose(in2_file);
 
   $display("-------------------- Computation completed For Sign and Magnitude Mode--------------------");
 
+  in1_file = $fopen("a_data.txt", "r"); 
+  in2_file = $fopen("b_data.txt", "r"); 
+
+  #1 clk = 1'b1;  
+  #1 clk = 1'b0; reset = 1; format = 0; acc = 0;
+  #1 clk = 1'b1;  
+  #1 clk = 1'b0; reset = 0;
+
+  $display("-------------------- Computation start: 2's Complement (format=0, acc=0) --------------------");
+
+  for (i = 0; i < 10; i = i + 1) begin
+    #1 clk = 1'b1;
+    #1 clk = 1'b0; format = 0; acc = 0; 
+
+    in1_scan_file = $fscanf(in1_file, "%d\n", in1_dec);
+    in1 = dec2bin(in1_dec); 
+    in2_scan_file = $fscanf(in2_file, "%d\n", in2_dec);
+    in2 = dec2bin(in2_dec); 
+  end
+
+  #1 clk = 1'b1;
+  #1 clk = 1'b0; format = 0; in1 = 8'h0; in2 = 8'h0; 
+  #1 clk = 1'b1;  
+  #1 clk = 1'b0; acc = 0;  
+
+  $fclose(in1_file);
+  $fclose(in2_file);
+  $display("-------------------- Computation completed: 2's Complement (format=0, acc=0) ----------------");
+
+  in1_file = $fopen("a_data.txt", "r"); 
+  in2_file = $fopen("b_data.txt", "r"); 
+
+  #1 clk = 1'b1;  
+  #1 clk = 1'b0; reset = 1; format = 1; acc = 0;
+  #1 clk = 1'b1;  
+  #1 clk = 1'b0; reset = 0;
+
+  $display("-------------------- Computation start: Sign-Magnitude (format=1, acc=0) --------------------");
+
+  for (i = 0; i < 10; i = i + 1) begin
+    #1 clk = 1'b1;
+    #1 clk = 1'b0; format = 1; acc = 0;
+
+    in1_scan_file = $fscanf(in1_file, "%d\n", in1_dec);
+    in1 = to_sign_magnitude(in1_dec); 
+    in2_scan_file = $fscanf(in2_file, "%d\n", in2_dec);
+    in2 = to_sign_magnitude(in2_dec); 
+  end
+
+  #1 clk = 1'b1;
+  #1 clk = 1'b0; in1 = 8'h0; in2 = 8'h0; 
+  #1 clk = 1'b1;  
+  #1 clk = 1'b0; acc = 0; format = 0; 
+
+  $fclose(in1_file);
+  $fclose(in2_file);
+  $display("-------------------- Computation completed: Sign-Magnitude (format=1, acc=0) ----------------");
 
   #10 $finish;
 end
 
 endmodule
+
+
