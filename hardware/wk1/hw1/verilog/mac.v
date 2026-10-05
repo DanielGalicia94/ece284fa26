@@ -22,8 +22,12 @@ reg signed [bw-1:0] b_q;
 assign out = psum_q;
 
 // Your code goes here
+reg signed [psum_bw-1:0] psum_q_stable;
+wire signed [psum_bw:0] psum_curr;
 wire signed [psum_bw-1:0] result;
-assign result = acc ? a_q*b_q+psum_q : a_q*b_q;
+
+
+assign result = acc ? a_q*b_q+psum_q_stable : a_q*b_q;
 
 wire MagNeg = result[psum_bw-1];
 wire signed [psum_bw-1:0]MagAbs = MagNeg ? -result: result;
@@ -34,10 +38,14 @@ wire signed [psum_bw-1:0] final = format ? Mag_Out : result;
 always @ (posedge clk) begin
     if (reset) begin
         psum_q <= 0;
+        psum_q_stable <= 0;
+    end else
+    begin
+        psum_q <= final;
+        psum_q_stable <= result;
     end
     b_q  <= B;
     a_q  <= A;
-    psum_q <=final;
 end
 
 endmodule
