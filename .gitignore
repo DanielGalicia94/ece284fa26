@@ -1,2 +1,6 @@
 .ipynb_checkpoints/
 software/data/
+*.pth
+*.pth.tar
+software/result/
+__pycache__/
