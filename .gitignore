@@ -1,3 +1,7 @@
 .ipynb_checkpoints/
 software/data/
 vivado/
+*.pth
+*.pth.tar
+software/result/
+__pycache__/
